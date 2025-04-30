@@ -218,12 +218,4 @@ ERC20 Standard
 
 Code4rena Audit Guidelines
 
-Additional Notes
-
-The contract’s simplicity and lack of security features 
-suggest it may be intended for testing, as seen in related contracts (e.g., ```FxERC20ChildTunnel```). However, if deployed with real funds, this vulnerability would be catastrophic.
-
-The PoC assumes the ``BMWToken`` from prior conversation history for consistency, but the issue applies to any ERC20 token.
-
-Auditors should verify if this contract interacts with other bridge components (e.g., ``FxRoot``) that might mitigate this issue, though no such protections are present in the provided code.
 
