@@ -1,4 +1,4 @@
-[H-01] Unrestricted ```syncWithdraw``` Function Allows Unauthorized Token Withdrawals, Leading to Loss of Funds
+Unrestricted ```syncWithdraw``` Function Allows Unauthorized Token Withdrawals, Leading to Loss of Funds
 
 Original Code
 ```js

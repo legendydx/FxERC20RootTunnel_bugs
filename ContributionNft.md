@@ -1,12 +1,12 @@
- [H-01] Unrestricted `mint` Function Allows Unauthorized NFT Minting Due to Missing Access Control
+ Unrestricted `mint` Function Allows Unauthorized NFT Minting Due to Missing Access Control
 
  Summary
 The `mint` function in `ContributionNft.sol` lacks proper access control, relying solely on a `proposalProposer` check that can be bypassed or manipulated due to external contract dependencies. This allows unauthorized users to mint Contribution NFTs, leading to potential financial loss, governance manipulation, and disruption of the NFT ecosystem.
 
-## Vulnerability Details
+ Vulnerability Details
 The `mint` function is `external` and intended to mint Contribution NFTs tied to governance proposals. It checks if `msg.sender` is the proposer of a given `proposalId` by calling `personaDAO.proposalProposer(proposalId)`, but it has no additional access control (e.g., `onlyAdmin` or role-based modifiers). This makes it vulnerable to unauthorized minting if the external `IGovernor` contract’s `proposalProposer` function is misconfigured, manipulable, or returns unexpected resutls.
 
-**Root Cause**: The absence of a robust access control mechanism in the `mint` function, combined with reliance on an external `IGovernor` contract, allows unauthorized calls. 
+Root Cause: The absence of a robust access control mechanism in the `mint` function, combined with reliance on an external `IGovernor` contract, allows unauthorized calls. 
 
 ```js
 // SPDX-License-Identifier: MIT
