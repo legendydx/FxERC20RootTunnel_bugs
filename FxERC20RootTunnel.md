@@ -1,5 +1,30 @@
 [H-01] Unrestricted ```syncWithdraw``` Function Allows Unauthorized Token Withdrawals, Leading to Loss of Funds
 
+Original Code
+```js
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import {SafeERC20, IERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+
+contract FxERC20RootTunnel {
+    using SafeERC20 for IERC20;
+
+    function deposit(address rootToken, uint256 amount) public {
+        // transfer from depositor to this contract
+        IERC20(rootToken).safeTransferFrom(
+            msg.sender, // depositor
+            address(this), // manager contract
+            amount
+        );
+    }
+    // exit processor
+    function syncWithdraw(address rootToken, uint256 amount) public {
+        // transfer from tokens to
+        IERC20(rootToken).safeTransfer(msg.sender, amount);
+    }
+}
+```
 
 Summary
 The ```syncWithdraw``` function in the ```FxERC20RootTunnel``` contract is public and lacks access control, allowing any user to withdraw arbitrary amounts of ERC20 tokens held by the contract. This critical vulnerability enables attackers to drain the contract's token balance, resulting in significant loss of funds for users who deposited tokens for cross-chain bridging.
