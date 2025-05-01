@@ -1,4 +1,4 @@
-[H-02] Public setFxManager in BMWTokenChild Enables Unauthorized Control Over Minting and Burning
+[H-01] Public setFxManager in BMWTokenChild Enables Unauthorized Control Over Minting and Burning
 
 
 Summary
