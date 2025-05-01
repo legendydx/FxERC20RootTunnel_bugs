@@ -5,11 +5,35 @@ Summary
 
 The mint function in BMWToken is public, enabling any user to mint arbitrary amounts of tokens to any address. This critical vulnerability allows attackers to inflate the token supply, devalue existing tokens, and potentially exploit other contracts in the ecosystem, leading to significant financial loss.
 
+see original code:clear
+
+```solidity
+
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+
+contract BMWToken is ERC20, Ownable, ERC20Permit {
+    constructor(address initialOwner) ERC20("BeemerToken", "BMW") Ownable(initialOwner) ERC20Permit("BeemerToken") {}
+
+    /**-----------🐛🐛🐛🐛---------
+    Can users pull liquidity from the bonding pool?
+ YES, indirectly — because anyone can mint() freely.
+    */
+    function mint(address to, uint256 amount) public {
+        _mint(to, amount);
+    }
+}
+```
+
 Vulnerability Details
 
 The ``mint`` function in ```BMWToken.sol``` is defined as public without access control, allowing unrestricted calls:
 
-```js
+```solidity
 function mint(address to, uint256 amount) public {
     _mint(to, amount);
 }
@@ -33,7 +57,7 @@ Proof of Concept (PoC)
 
 The following Foundry test demonstrates the vulnerability:
 
-```js
+```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
@@ -64,7 +88,7 @@ Execution: Run `forge test --match-path test/BMWTokenTest.sol`. The test shows a
 Recommended Mitigation
 
 Restrict the mint function to the contract owner using OpenZeppelin’s Ownable:
-```js
+```solidity
 function mint(address to, uint256 amount) public onlyOwner {
     _mint(to, amount);
 }
@@ -72,7 +96,7 @@ function mint(address to, uint256 amount) public onlyOwner {
 
 Alternatively, use AccessControl for role-based minting if multiple addresses need permission:
 
-```js
+```solidity
 import "@openzeppelin/contracts/access/AccessControl.sol";
 contract BMWToken is ERC20, Ownable, ERC20Permit, AccessControl {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
