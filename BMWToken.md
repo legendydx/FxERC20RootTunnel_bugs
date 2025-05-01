@@ -5,9 +5,10 @@ Summary
 
 The mint function in BMWToken is public, enabling any user to mint arbitrary amounts of tokens to any address. This critical vulnerability allows attackers to inflate the token supply, devalue existing tokens, and potentially exploit other contracts in the ecosystem, leading to significant financial loss.
 
-see original code:clear
+see original code on line 27:
 
 ```solidity
+
 
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
