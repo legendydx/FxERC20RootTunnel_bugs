@@ -1,4 +1,4 @@
-[H-01] Public setFxManager in BMWTokenChild Enables Unauthorized Control Over Minting and Burning
+[H-01] Public `setFxManager` in `BMWTokenChild `Enables Unauthorized Control Over Minting and Burning
 
 
 Summary
@@ -82,7 +82,7 @@ The following Foundry test demonstrates the exploit:
 pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
-import "../BMWTokenChild.sol";
+import "../contracts/dev/BMWTokenChild.sol";
 
 contract BMWTokenChildTest is Test {
     BMWTokenChild token;
@@ -110,7 +110,7 @@ contract BMWTokenChildTest is Test {
 }
 ```
 
-Execution: Run `forge test --match-path test/BMWTokenChildTest.sol`. The test shows an attacker taking control and manipulating the token supply.
+Execution: Run `forge test --match-path test/BMWTokenChildTest.sol --via -ir`. The test shows an attacker taking control and manipulating the token supply.
 
 Recommended Mitigation
 
