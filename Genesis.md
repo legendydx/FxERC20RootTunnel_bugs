@@ -118,3 +118,6 @@ contract GenesisTest is Test {
     }
 }
 ```
+Execution: Run `forge test --match-path test/GenesisTest.sol`. The test shows an attacker with `DEFAULT_ADMIN_ROLE` draining all virtualToken from the contract.
+
+import "../genesis/Genesis.sol";
