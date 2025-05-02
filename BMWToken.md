@@ -63,7 +63,8 @@ The following Foundry test demonstrates the vulnerability:
 pragma solidity ^0.8.20;
 
 import "forge-std/Test.sol";
-import "../BMWToken.sol";
+import "../contracts/dev/BMWToken.sol";
+
 
 contract BMWTokenTest is Test {
     BMWToken token;
@@ -84,7 +85,10 @@ contract BMWTokenTest is Test {
 }
 ```
 
-Execution: Run `forge test --match-path test/BMWTokenTest.sol`. The test shows an attacker minting tokens, increasing the supply without authorization.
+
+
+
+Execution: Run `forge test --match-path test/BMWTokenTest.sol --via-ir`. The test shows an attacker minting tokens, increasing the supply without authorization.
 
 Recommended Mitigation
 
