@@ -67,12 +67,12 @@ Severity: High, as it leads to direct and complete loss of funds with no mitigat
 Proof of Concept (PoC)
 The following test demonstrates the vulnerability using a Foundry test script:
 
-```js
+```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
-import "../FxERC20RootTunnel.sol";
+import "../contracts/dev/FxERC20RootTunnel.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract BMWToken is ERC20 {
@@ -133,7 +133,7 @@ To prevent unauthorized withdrawals, implement the following:
 Add a modifier to restrict ```syncWithdraw``` to a trusted relayer or bridge contract.
 Example:address public relayer;
 
-```js
+```solidity
 modifier onlyRelayer() {
     require(msg.sender == relayer, "Only relayer allowed");
     _;
@@ -151,7 +151,7 @@ Verify L2 burn messages using a state sync mechanism (e.g., Polygon’s FxRoot).
 
 Example:
 
-```js
+```solidity
 function syncWithdraw(address rootToken, uint256 amount, bytes calldata proof) public {
     require(verifyL2Proof(proof), "Invalid L2 proof");
     IERC20(rootToken).safeTransfer(msg.sender, amount);
@@ -165,7 +165,7 @@ function syncWithdraw(address rootToken, uint256 amount, bytes calldata proof) p
 Validate rootToken and amount to prevent invalid or malicious inputs.
 Example:
 
-```js
+```solidity
 require(rootToken != address(0), "Invalid token address");
 require(amount > 0, "Amount must be greater than 0");
 
@@ -178,7 +178,7 @@ Add events for transparency and auditability.
 
 Example:
 
-```js
+```solidity
 event Withdrawn(address indexed user, address rootToken, uint256 amount);
 function syncWithdraw(address rootToken, uint256 amount) public onlyRelayer {
     IERC20(rootToken).safeTransfer(msg.sender, amount);
@@ -194,7 +194,7 @@ Inherit from ```Ownable``` to allow configuration of the relayer or pausing.
 
 Example:
 
-```js
+```solidity
 import "@openzeppelin/contracts/access/Ownable.sol";
 contract FxERC20RootTunnel is Ownable {
     function setRelayer(address _relayer) external onlyOwner {
@@ -210,7 +210,7 @@ contract FxERC20RootTunnel is Ownable {
 Implement Puasable to halt withdrawals during exploits.
 
 Example:
-```js
+```solidity
 import "@openzeppelin/contracts/security/Pausable.sol";
 contract FxERC20RootTunnel is Ownable, Pausable {
     function pause() external onlyOwner { _pause(); }
