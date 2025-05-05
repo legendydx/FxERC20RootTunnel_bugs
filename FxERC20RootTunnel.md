@@ -111,7 +111,7 @@ contract FxERC20RootTunnelTest is Test {
 ```
 Execution:
 
-Run forge test ```--match-path test/FxERC20RootTunnelTest.sol.```
+Run ```forge test --match-path test/FxERC20RootTunnelTest.sol```
 The test shows the attacker successfully withdraws 1000 tokens, leaving the contract empty.
 
 Tools Used
