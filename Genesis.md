@@ -33,7 +33,7 @@ This function allows an address with DEFAULT_ADMIN_ROLE to withdraw any amount o
 
 The `DEFAULT_ADMIN_ROLE` is granted to the `FGenesis` factory in initialize, but if this role is compromised or reassigned (via `AccessControl`’s `grantRole`), an attacker could drain all tokens, including virtualToken contributions or agentToken rewards.
 
-Root Cause: Insufficient access control and validation in `withdrawLeftAssetsAfterFinalized`, allowing `DEFAULT_ADMIN_ROLE` holders to withdraw arbitrary tokens without oversight. See Genesis.sol#L448-L460
+Root Cause: Insufficient access control and validation in `withdrawLeftAssetsAfterFinalized`, allowing `DEFAULT_ADMIN_ROLE` holders to withdraw arbitrary tokens without oversight. See Genesis.
 
 Impact
 

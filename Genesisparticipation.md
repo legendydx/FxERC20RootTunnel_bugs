@@ -39,8 +39,7 @@ While it includes checks for non-zero `pointAmt` and `virtualsAmt`, balance, all
 An attacker could submit contributions with disproportionately high `pointAmt` values, potentially skewing the genesis event’s scoring or distribution logic, or flood the `participants` array, causing gas issues or unfair outcomes.
 
 
-**Root Cause**: Insufficient input validation in `participate`, allowing malicious contributions that could disrupt event logic. See [Genesis.sol#L108-L126](https://github.com/code-423n4/2025-04-example-contest/blob/abc123/contracts/genesis/Genesis.sol#L108-L126).
-
+**Root Cause**: Insufficient input validation in `participate`, allowing malicious contributions that could disrupt event logic.
 
 ## Impact
 - **Fund Loss**: Malicious contributions could lead to incorrect token distributions, depriving legitimate participants of their share.
